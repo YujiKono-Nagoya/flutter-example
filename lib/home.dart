@@ -70,7 +70,14 @@ class Home extends ConsumerWidget {
                 ref.read(todosProvider.notifier).toggle(item.id);
               },
               child: ListTile(
-                title: Text(item.description),
+                title: item.isCompleted
+                    ? Text(
+                        item.description,
+                        style: TextStyle(
+                            decoration: TextDecoration.lineThrough,
+                            color: Colors.grey),
+                      )
+                    : Text(item.description),
                 trailing: isEditMode
                     ? IconButton(
                         onPressed: () {
