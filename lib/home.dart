@@ -13,9 +13,7 @@ class Home extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: Text(
-          'Todoリスト',
-        ),
+        title: Text('Todoリスト'),
         actions: [
           IconButton(
               onPressed: () {
@@ -45,12 +43,13 @@ class Home extends ConsumerWidget {
                                   child: Text('cancel')),
                               TextButton(
                                   onPressed: () {
-                                    ref.read(todosProvider.notifier).addTodo(
+                                    ref.read(todosProvider.notifier).addTodotop(
                                         ToDo(
                                             id: DateTime.now()
                                                 .millisecondsSinceEpoch,
                                             description: description,
                                             isCompleted: false));
+                                    Navigator.of(context).pop();
                                   },
                                   child: Text('OK')),
                             ]);
@@ -65,9 +64,43 @@ class Home extends ConsumerWidget {
           ToDo item = todoList[index];
           return Card(
             key: ValueKey(item),
+            //isEditMode ? ontapでAlert表示、description変更 :
             child: GestureDetector(
               onTap: () {
-                ref.read(todosProvider.notifier).toggle(item.id);
+                isEditMode
+                    ? showDialog<String>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          String description = item.description;
+                          return AlertDialog(
+                            title: const Text('タスクの変更'),
+                            content: TextField(
+                              onChanged: (value) {
+                                description = value;
+                              },
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  ref
+                                      .read(todosProvider.notifier)
+                                      .updateTaskDescription(
+                                          item.id, description);
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('OK'),
+                              ),
+                            ],
+                          );
+                        },
+                      )
+                    : ref.read(todosProvider.notifier).toggle(item.id);
               },
               child: ListTile(
                 title: item.isCompleted
@@ -85,7 +118,7 @@ class Home extends ConsumerWidget {
                               .read(todosProvider.notifier)
                               .removeTodoAtIndex(index);
                         },
-                        icon: Icon(Icons.delete),
+                        icon: Icon(Icons.clear),
                       )
                     : item.isCompleted
                         ? Icon(Icons.check)
@@ -122,12 +155,14 @@ class Home extends ConsumerWidget {
                                   child: Text('cancel')),
                               TextButton(
                                   onPressed: () {
-                                    ref.read(todosProvider.notifier).addTodo(
-                                        ToDo(
+                                    ref
+                                        .read(todosProvider.notifier)
+                                        .addTodounder(ToDo(
                                             id: DateTime.now()
                                                 .millisecondsSinceEpoch,
                                             description: description,
                                             isCompleted: false));
+                                    Navigator.of(context).pop();
                                   },
                                   child: Text('OK')),
                             ]);
